@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Deepak Text Share</title>
+</head>
+<body>
+
+<h2>Live Shared Text</h2>
+<textarea id="sharedText" rows="10" cols="50"></textarea>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } 
+    from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjbuA8ZqC4afKH9Nl-R_hDRRrYy1Utbjk",
+    authDomain: "text-share-app-1ea19.firebaseapp.com",
+    databaseURL: "https://text-share-app-1ea19-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "text-share-app-1ea19",
+    storageBucket: "text-share-app-1ea19.firebasestorage.app",
+    messagingSenderId: "958767260499",
+    appId: "1:958767260499:web:f8bcc3e371d5be0d45f7a6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const textRef = ref(db, "sharedText");
+  const textarea = document.getElementById("sharedText");
+
+  // Listen for changes
+  onValue(textRef, (snapshot) => {
+    textarea.value = snapshot.val() || "";
+  });
+
+  // Update text
+  textarea.addEventListener("input", () => {
+    set(textRef, textarea.value);
+  });
+</script>
+
+</body>
+</html>
