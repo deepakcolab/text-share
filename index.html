@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Deepak Live Share</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(0,0,0,0.2);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background: white;
+      color: #333;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+      transform: scale(1.05);
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 20px;
+      font-size: 16px;
+      box-sizing: border-box;
+      resize: none;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 8px;
+      background: rgba(0,0,0,0.2);
+      color: white;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    🔥 Live Shared Text
+
+    <div class="btn-group">
+      <button onclick="downloadFile('txt')">Download .txt</button>
+      <button onclick="downloadFile('cs')">Download .cs</button>
+      <button onclick="downloadFile('html')">Download .html</button>
+        <!-- <a href="share.html">go to new share</a> -->
+    </div>
+  </div>
+
+  <textarea id="sharedText" placeholder="Start typing..."></textarea>
+
+  <div class="footer">
+    Real-time sync for 2-3 users 🚀
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } 
+    from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjbuA8ZqC4afKH9Nl-R_hDRRrYy1Utbjk",
+    authDomain: "text-share-app-1ea19.firebaseapp.com",
+    databaseURL: "https://text-share-app-1ea19-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "text-share-app-1ea19",
+    storageBucket: "text-share-app-1ea19.firebasestorage.app",
+    messagingSenderId: "958767260499",
+    appId: "1:958767260499:web:f8bcc3e371d5be0d45f7a6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const textRef = ref(db, "sharedText");
+  const textarea = document.getElementById("sharedText");
+
+  // Live Sync
+  onValue(textRef, (snapshot) => {
+    textarea.value = snapshot.val() || "";
+  });
+
+  textarea.addEventListener("input", () => {
+    set(textRef, textarea.value);
+  });
+
+  // Download Function
+  window.downloadFile = function (type) {
+    const text = textarea.value;
+    let fileName = "shared-file." + type;
+    let mimeType = "text/plain";
+
+    if (type === "html") {
+      mimeType = "text/html";
+    }
+
+    const blob = new Blob([text], { type: mimeType });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+  };
+</script>
+
+</body>
+</html>
