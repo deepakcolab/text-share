@@ -1,196 +1,970 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Deepak Live Share Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+    <title>Deepak Live Share</title>
 
-    .header {
-      padding: 10px 15px;
-      background: rgba(0,0,0,0.2);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    .top-row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    .room-info {
-      font-size: 14px;
-    }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.22);
+            color: white;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
 
-    .controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
 
-    input {
-      padding: 6px;
-      border-radius: 5px;
-      border: none;
-      outline: none;
-    }
+        .room-info {
+            font-size: 13px;
+            opacity: 0.9;
+        }
 
-    button {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+        .status {
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            white-space: nowrap;
+        }
 
-    textarea {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      outline: none;
-      font-size: 15px;
-    }
+        .status.connected {
+            background: #16a34a;
+        }
 
-    .recent {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
+        .status.connecting {
+            background: #d97706;
+        }
 
-    .tag {
-      background: white;
-      color: #333;
-      padding: 4px 8px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 12px;
-    }
+        .status.disconnected {
+            background: #dc2626;
+        }
 
-    .footer {
-      text-align: center;
-      padding: 6px;
-      color: white;
-      font-size: 12px;
-      background: rgba(0,0,0,0.2);
-    }
-  </style>
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 13px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            background: white;
+            color: #333;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 20px;
+            font-size: 16px;
+            resize: none;
+            background: white;
+        }
+
+        .image-panel {
+            display: none;
+            background: white;
+            padding: 15px 20px;
+            border-top: 1px solid #ddd;
+            max-height: 280px;
+            overflow: auto;
+        }
+
+        .image-panel.show {
+            display: block;
+        }
+
+        .image-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .image-preview-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        #receivedImage {
+            max-width: 100%;
+            max-height: 210px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .image-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .progress-container {
+            display: none;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 20px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: white;
+            transition: width 0.1s;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 7px;
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 12px;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        @media (max-width: 700px) {
+            .header {
+                padding: 10px;
+            }
+
+            .header-left {
+                width: 100%;
+            }
+
+            .btn-group {
+                width: 100%;
+            }
+
+            button {
+                flex: 1;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="header">
+    <div class="header">
 
-  <div class="top-row">
-    <div><b>🔥 Live Share Pro</b></div>
-    <div class="room-info" id="roomName"></div>
-  </div>
+        <div class="header-left">
 
-  <div class="controls">
-    <input id="roomInput" placeholder="Enter room name..." />
-    <button onclick="joinRoom()">Join</button>
-    <button onclick="copyLink()">Copy Link</button>
-    <button onclick="copyText()">Copy</button>
-    <button onclick="downloadFile('txt')">.txt</button>
-  </div>
+            <div class="title">
+                🔥 Live Shared Text
+            </div>
 
-  <div class="recent" id="recentRooms"></div>
+            <div class="room-info" id="roomName">
+                Room: default
+            </div>
 
-</div>
+            <div class="status connecting" id="connectionStatus">
+                🟡 Connecting...
+            </div>
 
-<textarea id="sharedText" placeholder="Start typing..."></textarea>
+        </div>
 
-<div class="footer">Multi-room • No login 🚀</div>
+        <div class="btn-group">
+
+            <button onclick="copyText()">
+                Copy
+            </button>
+
+            <button onclick="copySelectedText()">
+                📑 Copy Selected
+            </button>
+
+            <button onclick="copyLink()">
+                Share Link
+            </button>
+
+            <button id="imageButton">
+                📷 Image
+            </button>
+
+            <button onclick="downloadFile('txt')">
+                .txt
+            </button>
+
+            <button onclick="downloadFile('cs')">
+                .cs
+            </button>
+
+            <button onclick="downloadFile('html')">
+                .html
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="progress-container" id="progressContainer">
+
+        <div id="progressText">
+            Sending image...
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+    </div>
+
+
+    <textarea
+        id="sharedText"
+        placeholder="Start typing..."
+    ></textarea>
+
+
+    <div class="image-panel" id="imagePanel">
+
+        <div class="image-header">
+
+            <span id="imageTitle">
+                🖼️ Received Image
+            </span>
+
+        </div>
+
+        <div class="image-preview-wrapper">
+
+            <img
+                id="receivedImage"
+                alt="Received Image"
+            >
+
+        </div>
+
+        <div class="image-actions">
+
+            <button onclick="copyImage()">
+                📋 Copy Image
+            </button>
+
+            <button onclick="downloadImage()">
+                📥 Download
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        hidden
+    >
+
+
+    <div class="footer">
+        Multi-room Live Share 🚀 | No Login | Works Even If Other User Is Offline
+    </div>
+
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-const firebaseConfig = {
-    
-  apiKey: "AIzaSyDjbuA8ZqC4afKH9Nl-R_hDRRrYy1Utbjk",
-  authDomain: "text-share-app-1ea19.firebaseapp.com",
-  databaseURL: "https://text-share-app-1ea19-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "text-share-app-1ea19",
-};
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    import {
+        getDatabase,
+        ref,
+        set,
+        onValue
+    }
+        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ROOM
-if (!location.hash) location.hash = "default";
-const room = location.hash.replace("#", "");
 
-document.getElementById("roomName").innerText =
-  room === "default" ? "🌍 Public Room" : "Room: " + room;
+    // =========================================================
+    // FIREBASE CONFIG
+    // =========================================================
 
-const textarea = document.getElementById("sharedText");
-const textRef = ref(db, "sharedText/" + room);
+    const firebaseConfig = {
 
-// SAVE RECENT
-let recent = JSON.parse(localStorage.getItem("rooms") || "[]");
-if (!recent.includes(room)) {
-  recent.unshift(room);
-  recent = recent.slice(0, 5);
-  localStorage.setItem("rooms", JSON.stringify(recent));
-}
+        apiKey: "AIzaSyDjbuA8ZqC4afKH9Nl-R_hDRRrYy1Utbjk",
 
-// SHOW RECENT
-const recentDiv = document.getElementById("recentRooms");
-recent.forEach(r => {
-  const el = document.createElement("div");
-  el.className = "tag";
-  el.innerText = r;
-  el.onclick = () => location.hash = r;
-  recentDiv.appendChild(el);
-});
+        authDomain:
+            "text-share-app-1ea19.firebaseapp.com",
 
-// SYNC
-let typing = false;
+        databaseURL:
+            "https://text-share-app-1ea19-default-rtdb.asia-southeast1.firebasedatabase.app",
 
-textarea.addEventListener("input", () => {
-  typing = true;
-  set(textRef, textarea.value);
-  setTimeout(() => typing = false, 300);
-});
+        projectId:
+            "text-share-app-1ea19",
 
-onValue(textRef, snap => {
-  if (!typing) textarea.value = snap.val() || "";
-});
+        storageBucket:
+            "text-share-app-1ea19.appspot.com",
 
-// FUNCTIONS
-window.joinRoom = () => {
-  const val = document.getElementById("roomInput").value.trim();
-  if (val) location.hash = val;
-};
+        messagingSenderId:
+            "958767260499",
 
-window.copyLink = () => {
-  navigator.clipboard.writeText(location.href);
-  alert("Link copied!");
-};
+        appId:
+            "1:958767260499:web:f8bcc3e371d5be0d45f7a6"
+    };
 
-window.copyText = () => {
-  navigator.clipboard.writeText(textarea.value);
-};
 
-window.downloadFile = (type) => {
-  const blob = new Blob([textarea.value]);
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "file." + type;
-  a.click();
-};
+    const app = initializeApp(firebaseConfig);
+
+    const db = getDatabase(app);
+
+
+    // =========================================================
+    // ROOM
+    // =========================================================
+
+    if (!window.location.hash) {
+
+        window.location.hash = "default";
+
+    }
+
+
+    const room =
+        window.location.hash.substring(1);
+
+
+    document.getElementById("roomName").innerText =
+        "Room: " + room;
+
+
+    // =========================================================
+    // TEXT SHARING
+    // =========================================================
+
+    const textRef =
+        ref(db, "sharedText/" + room);
+
+
+    const textarea =
+        document.getElementById("sharedText");
+
+
+    let isTyping = false;
+
+
+    textarea.addEventListener("input", () => {
+
+        isTyping = true;
+
+        set(textRef, textarea.value);
+
+        setTimeout(() => {
+
+            isTyping = false;
+
+        }, 300);
+
+    });
+
+
+    onValue(textRef, (snapshot) => {
+
+        if (!isTyping) {
+
+            textarea.value =
+                snapshot.val() || "";
+
+        }
+
+    });
+
+
+    // =========================================================
+    // CONNECTION STATUS
+    // (Images and text now go through Firebase, not a direct
+    // peer-to-peer link, so "connected" simply means this device
+    // has a live connection to Firebase - the other user does NOT
+    // need to be online at the same time for anything to work.)
+    // =========================================================
+
+    const connectedRef =
+        ref(db, ".info/connected");
+
+
+    onValue(connectedRef, (snapshot) => {
+
+        if (snapshot.val() === true) {
+
+            updateStatus(
+                "🟢 Connected",
+                "connected"
+            );
+
+        }
+        else {
+
+            updateStatus(
+                "🔴 Disconnected",
+                "disconnected"
+            );
+
+        }
+
+    });
+
+
+    function updateStatus(
+        text,
+        type
+    ) {
+
+        const status =
+            document.getElementById(
+                "connectionStatus"
+            );
+
+        status.innerText = text;
+
+        status.className =
+            "status " + type;
+
+    }
+
+
+    // =========================================================
+    // IMAGE SHARING (via Firebase, so it works even if the
+    // other user is offline right now - it'll be waiting for
+    // them whenever they open the room)
+    // =========================================================
+
+    const imageRef =
+        ref(db, "sharedImage/" + room);
+
+
+    const imageButton =
+        document.getElementById("imageButton");
+
+    const imageInput =
+        document.getElementById("imageInput");
+
+
+    const MAX_IMAGE_MB = 5;
+
+
+    imageButton.addEventListener("click", () => {
+
+        imageInput.click();
+
+    });
+
+
+    imageInput.addEventListener("change", (event) => {
+
+        const file =
+            event.target.files[0];
+
+        event.target.value = "";
+
+        if (!file) {
+
+            return;
+
+        }
+
+        if (
+            file.size >
+            MAX_IMAGE_MB * 1024 * 1024
+        ) {
+
+            alert(
+                `Image bahut badi hai. Max ${MAX_IMAGE_MB}MB tak ki image bhejo.`
+            );
+
+            return;
+
+        }
+
+        sendImage(file);
+
+    });
+
+
+    function sendImage(file) {
+
+        showProgress(
+            "Reading image...",
+            10
+        );
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload = async () => {
+
+            try {
+
+                showProgress(
+                    "Sending image...",
+                    60
+                );
+
+                await set(
+                    imageRef,
+                    {
+                        name:
+                            file.name,
+
+                        mime:
+                            file.type ||
+                            "image/png",
+
+                        data:
+                            reader.result,
+
+                        ts:
+                            Date.now()
+                    }
+                );
+
+                showProgress(
+                    "Image sent",
+                    100
+                );
+
+                setTimeout(
+                    hideProgress,
+                    1200
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+                alert(
+                    "Image bhejne me error aaya:\n" +
+                    (error && error.message
+                        ? error.message
+                        : error)
+                );
+
+                hideProgress();
+
+            }
+
+        };
+
+
+        reader.onerror = () => {
+
+            console.error(
+                reader.error
+            );
+
+            alert(
+                "Image read nahi ho payi: " +
+                (reader.error
+                    ? reader.error.message
+                    : "unknown error")
+            );
+
+            hideProgress();
+
+        };
+
+
+        reader.readAsDataURL(file);
+
+    }
+
+
+    // Whenever the image in Firebase changes - including the
+    // very first time this device opens the room, even long
+    // after it was sent - show it.
+    onValue(imageRef, (snapshot) => {
+
+        const value =
+            snapshot.val();
+
+
+        if (!value || !value.data) {
+
+            return;
+
+        }
+
+
+        const image =
+            document.getElementById(
+                "receivedImage"
+            );
+
+
+        image.src =
+            value.data;
+
+
+        image.dataset.name =
+            value.name ||
+            "shared-image.png";
+
+
+        document.getElementById(
+            "imageTitle"
+        ).innerText =
+            "🖼️ " +
+            (value.name ||
+                "shared-image.png");
+
+
+        document.getElementById(
+            "imagePanel"
+        ).classList.add("show");
+
+    });
+
+
+    // =========================================================
+    // PROGRESS
+    // =========================================================
+
+    function showProgress(
+        text,
+        percent
+    ) {
+
+        const container =
+            document.getElementById(
+                "progressContainer"
+            );
+
+
+        const textElement =
+            document.getElementById(
+                "progressText"
+            );
+
+
+        const fill =
+            document.getElementById(
+                "progressFill"
+            );
+
+
+        container.classList.add(
+            "show"
+        );
+
+
+        textElement.innerText =
+            `${text} ${Math.round(percent)}%`;
+
+
+        fill.style.width =
+            percent + "%";
+
+    }
+
+
+    function hideProgress() {
+
+        document
+            .getElementById(
+                "progressContainer"
+            )
+            .classList.remove(
+                "show"
+            );
+
+    }
+
+
+    // =========================================================
+    // COPY IMAGE
+    // =========================================================
+
+    window.copyImage =
+        async function () {
+
+            const image =
+                document.getElementById(
+                    "receivedImage"
+                );
+
+
+            if (!image.src) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        image.src
+                    );
+
+
+                const blob =
+                    await response.blob();
+
+
+                await navigator.clipboard.write(
+                    [
+                        new ClipboardItem({
+                            [blob.type]:
+                                blob
+                        })
+                    ]
+                );
+
+
+                alert(
+                    "Image copied!"
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                alert(
+                    "Image copy is not supported on this system."
+                );
+
+            }
+
+        };
+
+
+    // =========================================================
+    // DOWNLOAD IMAGE
+    // =========================================================
+
+    window.downloadImage =
+        function () {
+
+            const image =
+                document.getElementById(
+                    "receivedImage"
+                );
+
+
+            if (!image.src) {
+
+                return;
+
+            }
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                image.src;
+
+
+            link.download =
+                image.dataset.name ||
+                "shared-image.png";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            link.remove();
+
+        };
+
+
+    // =========================================================
+    // COPY TEXT (full text)
+    // =========================================================
+
+    window.copyText =
+        function () {
+
+            navigator.clipboard.writeText(
+                textarea.value
+            );
+
+        };
+
+
+    // =========================================================
+    // COPY SELECTED TEXT (only whatever the user highlighted)
+    // =========================================================
+
+    window.copySelectedText =
+        function () {
+
+            const start =
+                textarea.selectionStart;
+
+            const end =
+                textarea.selectionEnd;
+
+            const selected =
+                textarea.value.substring(
+                    start,
+                    end
+                );
+
+            if (!selected) {
+
+                alert(
+                    "Pehle textarea me se kuch text select karo."
+                );
+
+                return;
+
+            }
+
+            navigator.clipboard.writeText(
+                selected
+            );
+
+        };
+
+
+    // =========================================================
+    // COPY LINK
+    // =========================================================
+
+    window.copyLink =
+        function () {
+
+            navigator.clipboard.writeText(
+                window.location.href
+            );
+
+
+            alert(
+                "Share link copied!"
+            );
+
+        };
+
+
+    // =========================================================
+    // DOWNLOAD TEXT
+    // =========================================================
+
+    window.downloadFile =
+        function (type) {
+
+            const text =
+                textarea.value;
+
+
+            const blob =
+                new Blob(
+                    [text],
+                    {
+                        type:
+                            "text/plain"
+                    }
+                );
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            link.download =
+                "shared-file." + type;
+
+
+            link.click();
+
+        };
+
 </script>
 
 </body>
